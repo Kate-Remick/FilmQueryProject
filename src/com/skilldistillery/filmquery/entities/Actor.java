@@ -21,7 +21,7 @@ public class Actor {
 	
 	@Override
 	public String toString() {
-		return "Actor [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + "]";
+		return firstName + " " + lastName;
 	}
 	
 	@Override
@@ -36,6 +36,12 @@ public class Actor {
 			return false;
 		Actor other = (Actor) obj;
 		return id == other.id;
+	}
+	public List<Film> getFilms() {
+		return films;
+	}
+	public void setFilms(List<Film> films) {
+		this.films = films;
 	}
 	public int getId() {
 		return id;

@@ -16,8 +16,17 @@ public class Film {
 	private String rating;
 	private String specialFeatures;
 	private List<Actor> actors;
+	private String language;
 	
 	
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
 	public List<Actor> getActors() {
 		return actors;
 	}
@@ -42,13 +51,17 @@ public class Film {
 		this.rating = rating;
 		this.specialFeatures = specialFeatures;
 	}
-
+	public void showActors() {
+		System.out.println("The following actors played in " + this.title);
+		for (Actor actor : actors) {
+			System.out.println(actor);
+		}
+	}
+	
 	@Override
 	public String toString() {
-		return "Film [id=" + id + ", title=" + title + ", description=" + description + ", releaseYear=" + releaseYear
-				+ ", languageId=" + languageId + ", rentalDuration=" + rentalDuration + ", rentalRate=" + rentalRate
-				+ ", length=" + length + ", replacementCost=" + replacementCost + ", rating=" + rating
-				+ ", specialFeatures=" + specialFeatures + "]";
+		return "Title: " + title + "\n Description: " + description + "\n Year: " + releaseYear
+				+ " Language: " + language + ", Rating: " + rating;
 	}
 
 	@Override
