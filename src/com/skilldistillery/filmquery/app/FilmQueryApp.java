@@ -38,16 +38,16 @@ public class FilmQueryApp {
 	private void startUserInterface(Scanner input) {
 		boolean valid = false;
 		while (!valid) {
+			int response;
+			System.out.println("check");
 			try {
-				int response = 3;
 				do {
 					System.out.println("What would you like to find?");
 					System.out.println("Select an option:");
 					System.out.println("1) Look up a film by ID");
 					System.out.println("2) Look up film by keyword");
 					System.out.println("3) Exit");
-					response = input.nextInt();
-					input.nextLine();
+					response = Integer.parseInt(input.nextLine());
 					switch (response) {
 					case 1:
 						filmLookupById(input);
@@ -88,6 +88,7 @@ public class FilmQueryApp {
 				for (Film film : films) {
 					System.out.println(film);
 				}
+				showFilmDetailsMenu(films, input);
 				valid = true;
 			} catch (Exception e) {
 				System.out.println(
@@ -115,6 +116,7 @@ public class FilmQueryApp {
 				System.out.println("Film id:" + response);
 				System.out.println(film);
 				film.showActors();
+				showFilmDetailsMenu(film, input);
 				valid = true;
 			} catch (NumberFormatException e) {
 				System.out.println("Invalid input for search, enter a number Id.");
@@ -123,6 +125,58 @@ public class FilmQueryApp {
 			}
 		}
 
+	}
+	private void showFilmDetailsMenu(Film film, Scanner input) {
+		System.out.println("1) View more details on " + film.getTitle()+ ".");
+		System.out.println("2) Return to main menu.");
+		boolean valid = false;
+		while(!valid) {
+			try {
+				int response = Integer.parseInt(input.nextLine());
+				do {
+					if( response == 1) {
+						film.showDetails();
+						return;
+					}else if(response == 2) {
+						return;
+					}else {
+						System.out.println("Please enter 1 or 2.");
+					}
+				}while(response != 2);
+				valid = true;
+			}catch(Exception e) {
+				System.out.println("Invalid input, please enter 1 to display details or 2 to return to main menu.");
+			}
+		}
+		
+	}
+	private void showFilmDetailsMenu(List<Film> films, Scanner input) {
+		System.out.println("1) View more details on a film matching your keyword.");
+		System.out.println("2) Return to main menu.");
+		boolean valid = false;
+		while(!valid) {
+			try {
+				int response = Integer.parseInt(input.nextLine());
+				do {
+					if( response == 1) {
+						System.out.println("Which film would you like to view? (Enter number corresponding to film)");
+						for(int i = 0; i < films.size(); i ++){
+							System.out.println(i + ") " + films.get(i).getTitle());
+						}
+						int response2 = Integer.parseInt(input.nextLine());
+						films.get(response2).showDetails();
+					}else if(response == 2) {
+						return;
+					}else {
+						System.out.println("Please enter 1 to view film details or 2 to exit.");
+					}
+				}while(response != 2);
+				valid = true;
+			}catch(Exception e) {
+				System.out.println("Invalid input. Enter 2 to return to menu or 1 to view film details:");
+			}
+		}
+		
 	}
 
 	

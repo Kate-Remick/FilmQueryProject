@@ -58,6 +58,15 @@ public class Film {
 		}
 	}
 	
+	public void showDetails() {
+		System.out.println(this.title + ":");
+		System.out.println(this.description);
+		System.out.println("Release Year: " + this.releaseYear +", Rating: " + this.rating + ", Language: " +this.language);
+		System.out.println("Film Length: " + this.length + " mins");
+		System.out.println("Special Features: " + this.specialFeatures);
+		System.out.println("Rental rate: " + this.rentalRate + ", Replacement Cost: " + this.replacementCost + ", Rental Duration: " + this.rentalDuration );
+	}
+	
 	@Override
 	public String toString() {
 		return "Title: " + title + "\n Description: " + description + "\n Year: " + releaseYear

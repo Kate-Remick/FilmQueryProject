@@ -30,13 +30,11 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 	public Film findFilmById(int filmId) {
 		Film film = null;
 		ResultSet rs;
-		String sql = "SELECT * FROM film WHERE film.id = ?";
+		String sql = "SELECT film.*, language.name FROM film JOIN language ON language.id = film.language_id WHERE film.id = ?";
 		String actorQuery = "SELECT actor.* FROM actor JOIN film_actor ON actor.id = film_actor.actor_id JOIN film ON film.id = film_actor.film_id WHERE film.id = ?";
-		String languageQuery = "Select language.name FROM language WHERE language.id = ?";
 		try (Connection conn = DriverManager.getConnection(URL, user, pw);
 				PreparedStatement pst = conn.prepareStatement(sql);
-				PreparedStatement actorPst = conn.prepareStatement(actorQuery);
-				PreparedStatement languagePst = conn.prepareStatement(languageQuery)) {
+				PreparedStatement actorPst = conn.prepareStatement(actorQuery);) {
 			pst.setInt(1, filmId);
 			rs = pst.executeQuery();
 			if (rs.next()) {
@@ -45,6 +43,7 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 						rs.getInt("release_year"), rs.getInt("language_id"), rs.getInt("rental_duration"),
 						rs.getDouble("rental_rate"), rs.getInt("length"), rs.getDouble("replacement_cost"),
 						rs.getString("rating"), rs.getString("special_features"));
+				film.setLanguage(rs.getNString("language.name"));
 				List<Actor> filmActors = new ArrayList<>();
 				actorPst.setInt(1, filmId);
 				rs = actorPst.executeQuery();
@@ -52,11 +51,6 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 					filmActors.add(new Actor(rs.getInt("id"), rs.getString("first_name"), rs.getString("last_name")));
 				}
 				film.setActors(filmActors);
-				languagePst.setInt(1, film.getLanguageId());
-				rs = languagePst.executeQuery();
-				if (rs.next()) {
-					film.setLanguage(rs.getNString("name"));
-				}
 			}
 
 			rs.close();
@@ -73,12 +67,10 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		query = "%" + query + "%";
 		ResultSet rs;
 		String actorQuery = "SELECT actor.* FROM actor JOIN film_actor ON actor.id = film_actor.actor_id JOIN film ON film.id = film_actor.film_id WHERE film.id = ?";
-		String languageQuery = "Select language.name FROM language WHERE language.id = ?";
-		String sql = "SELECT film.* FROM film WHERE film.title LIKE ? OR film.description Like ?";
+		String sql = "SELECT film.*, language.name FROM film JOIN language ON film.language_id = language.id WHERE film.title LIKE ? OR film.description Like ?";
 		try (Connection conn = DriverManager.getConnection(URL, user, pw);
 				PreparedStatement pst = conn.prepareStatement(sql);
-				PreparedStatement actorPst = conn.prepareStatement(actorQuery);
-				PreparedStatement languagePst = conn.prepareStatement(languageQuery)) {
+				PreparedStatement actorPst = conn.prepareStatement(actorQuery);) {
 			pst.setNString(1, query);
 			pst.setNString(2, query);
 			rs = pst.executeQuery();
@@ -87,22 +79,14 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 						rs.getInt("release_year"), rs.getInt("language_id"), rs.getInt("rental_duration"),
 						rs.getDouble("rental_rate"), rs.getInt("length"), rs.getDouble("replacement_cost"),
 						rs.getString("rating"), rs.getString("special_features"));
-				System.out.println("Check 1");
+				film.setLanguage(rs.getNString("language.name"));
 				List<Actor> filmActors = new ArrayList<>();
 				actorPst.setInt(1, film.getId());
 				ResultSet actAndLang = actorPst.executeQuery();
-				System.out.println("Check 2");
 				while (actAndLang.next()) {
-					System.out.println("Check 3");
 					filmActors.add(new Actor(actAndLang.getInt("id"), actAndLang.getString("first_name"), actAndLang.getString("last_name")));
 				}
 				film.setActors(filmActors);
-				languagePst.setInt(1, film.getLanguageId());
-				System.out.println("Check 4");
-				actAndLang = languagePst.executeQuery();
-				if (actAndLang.next()) {
-					film.setLanguage(actAndLang.getNString("name"));
-				}
 				films.add(film);
 
 				actAndLang.close();
