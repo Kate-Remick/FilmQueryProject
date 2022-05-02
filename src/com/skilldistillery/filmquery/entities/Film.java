@@ -17,22 +17,18 @@ public class Film {
 	private String specialFeatures;
 	private List<Actor> actors;
 	private String language;
+	private String category;
+	private List<String> inventory;
 	
-	
-	public String getLanguage() {
-		return language;
+
+
+
+	public List<String> getInventory() {
+		return inventory;
 	}
 
-	public void setLanguage(String language) {
-		this.language = language;
-	}
-
-	public List<Actor> getActors() {
-		return actors;
-	}
-
-	public void setActors(List<Actor> actors) {
-		this.actors = actors;
+	public void setInventory(List<String> inventory) {
+		this.inventory = inventory;
 	}
 
 	public Film() {}
@@ -61,10 +57,15 @@ public class Film {
 	public void showDetails() {
 		System.out.println(this.title + ":");
 		System.out.println(this.description);
+		System.out.println("Category: " + this.category);
 		System.out.println("Release Year: " + this.releaseYear +", Rating: " + this.rating + ", Language: " +this.language);
 		System.out.println("Film Length: " + this.length + " mins");
 		System.out.println("Special Features: " + this.specialFeatures);
 		System.out.println("Rental rate: " + this.rentalRate + ", Replacement Cost: " + this.replacementCost + ", Rental Duration: " + this.rentalDuration );
+		System.out.println("The following copies are in inventory: ");
+		for (String inventoryItem : inventory) {
+			System.out.println(inventoryItem);
+		}
 	}
 	
 	@Override
@@ -87,9 +88,34 @@ public class Film {
 		Film other = (Film) obj;
 		return id == other.id;
 	}
+	
+
+	public String getLanguage() {
+		return language;
+	}
+	
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+	
+	public List<Actor> getActors() {
+		return actors;
+	}
+	
+	public void setActors(List<Actor> actors) {
+		this.actors = actors;
+	}
 
 	public int getId() {
 		return id;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public void setId(int id) {

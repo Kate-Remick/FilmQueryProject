@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +31,14 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 	public Film findFilmById(int filmId) {
 		Film film = null;
 		ResultSet rs;
+		String inventoryQuery = "SELECT inventory_item.id, inventory_item.media_condition FROM inventory_item JOIN film ON inventory_item.film_id = film.id WHERE film.id = ?";
+		String categoryQuery = "SELECT category.name FROM category JOIN film_category ON category.id = film_category.category_id JOIN film ON film.id = film_category.film_id WHERE film.id = ?"; 
 		String sql = "SELECT film.*, language.name FROM film JOIN language ON language.id = film.language_id WHERE film.id = ?";
 		String actorQuery = "SELECT actor.* FROM actor JOIN film_actor ON actor.id = film_actor.actor_id JOIN film ON film.id = film_actor.film_id WHERE film.id = ?";
 		try (Connection conn = DriverManager.getConnection(URL, user, pw);
+				PreparedStatement catPst = conn.prepareStatement(categoryQuery);
 				PreparedStatement pst = conn.prepareStatement(sql);
+				PreparedStatement inventoryPst = conn.prepareStatement(inventoryQuery);
 				PreparedStatement actorPst = conn.prepareStatement(actorQuery);) {
 			pst.setInt(1, filmId);
 			rs = pst.executeQuery();
@@ -44,6 +49,14 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 						rs.getDouble("rental_rate"), rs.getInt("length"), rs.getDouble("replacement_cost"),
 						rs.getString("rating"), rs.getString("special_features"));
 				film.setLanguage(rs.getNString("language.name"));
+				List<String> inventory = new ArrayList<>();
+				inventoryPst.setInt(1, filmId);
+				rs = inventoryPst.executeQuery();
+				while(rs.next()) {
+					String inventoryItem = "Copy #"+ rs.getInt("inventory_item.id") + ", condition - " +rs.getNString("inventory_item.media_condition");
+					inventory.add(inventoryItem);
+				}
+				film.setInventory(inventory);
 				List<Actor> filmActors = new ArrayList<>();
 				actorPst.setInt(1, filmId);
 				rs = actorPst.executeQuery();
@@ -51,11 +64,18 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 					filmActors.add(new Actor(rs.getInt("id"), rs.getString("first_name"), rs.getString("last_name")));
 				}
 				film.setActors(filmActors);
+				catPst.setInt(1, filmId);
+				rs = catPst.executeQuery();
+				if(rs.next()) {
+					film.setCategory(rs.getNString("category.name"));
+				}
+				
+				
 			}
 
 			rs.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (SQLException e) {
+			System.out.println("Your query could not be completed by the database");
 		}
 
 		return film;
@@ -66,10 +86,14 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		List<Film> films = new ArrayList<>();
 		query = "%" + query + "%";
 		ResultSet rs;
+		String categoryQuery = "SELECT category.name FROM category JOIN film_category ON category.id = film_category.category_id JOIN film ON film.id = film_category.film_id WHERE film.id = ?"; 
 		String actorQuery = "SELECT actor.* FROM actor JOIN film_actor ON actor.id = film_actor.actor_id JOIN film ON film.id = film_actor.film_id WHERE film.id = ?";
+		String inventoryQuery = "SELECT inventory_item.id, inventory_item.media_condition FROM inventory_item JOIN film ON inventory_item.film_id = film.id WHERE film.id = ?";
 		String sql = "SELECT film.*, language.name FROM film JOIN language ON film.language_id = language.id WHERE film.title LIKE ? OR film.description Like ?";
 		try (Connection conn = DriverManager.getConnection(URL, user, pw);
 				PreparedStatement pst = conn.prepareStatement(sql);
+				PreparedStatement catPst = conn.prepareStatement(categoryQuery);
+				PreparedStatement inventoryPst = conn.prepareStatement(inventoryQuery);
 				PreparedStatement actorPst = conn.prepareStatement(actorQuery);) {
 			pst.setNString(1, query);
 			pst.setNString(2, query);
@@ -82,18 +106,32 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 				film.setLanguage(rs.getNString("language.name"));
 				List<Actor> filmActors = new ArrayList<>();
 				actorPst.setInt(1, film.getId());
-				ResultSet actAndLang = actorPst.executeQuery();
-				while (actAndLang.next()) {
-					filmActors.add(new Actor(actAndLang.getInt("id"), actAndLang.getString("first_name"), actAndLang.getString("last_name")));
+				ResultSet resultPlus = actorPst.executeQuery();
+				while (resultPlus.next()) {
+					filmActors.add(new Actor(resultPlus.getInt("id"), resultPlus.getString("first_name"), resultPlus.getString("last_name")));
 				}
 				film.setActors(filmActors);
+				
+				catPst.setInt(1, film.getId());
+				resultPlus = catPst.executeQuery();
+				if(resultPlus.next()) {
+					film.setCategory(resultPlus.getNString("category.name"));
+				}
+				List<String> inventory = new ArrayList<>();
+				inventoryPst.setInt(1, film.getId());
+				resultPlus = inventoryPst.executeQuery();
+				while(resultPlus.next()) {
+					String inventoryItem = "Copy #"+ resultPlus.getInt("inventory_item.id") + ", condition - " +resultPlus.getNString("inventory_item.media_condition");
+					inventory.add(inventoryItem);
+				}
+				film.setInventory(inventory);
 				films.add(film);
 
-				actAndLang.close();
+				resultPlus.close();
 			}
 			rs.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (SQLException e) {
+			System.out.println("Your query could not be completed by the database");
 		}
 
 		return films;
@@ -125,8 +163,8 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 			}
 
 			rs.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (SQLException e) {
+			System.out.println("Your query could not be completed by the database");
 		}
 
 		return actor;

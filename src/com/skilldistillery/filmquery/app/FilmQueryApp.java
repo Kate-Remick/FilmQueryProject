@@ -2,6 +2,7 @@ package com.skilldistillery.filmquery.app;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import com.skilldistillery.filmquery.database.DatabaseAccessor;
@@ -63,9 +64,14 @@ public class FilmQueryApp {
 					}
 				} while (response != 3);
 				valid = true;
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch(NoSuchElementException e ) {
 				System.out.println("Input not recognized. Please enter a valid input");
+			}catch (NumberFormatException e ) {
+				System.out.println("Input not recognized. Please enter a valid input");
+			}catch (Exception e) {
+				System.out.println("An unknown problem has been encountered. Please restart program to continue");
+				e.printStackTrace();
+				return;
 			}
 		}
 
@@ -90,7 +96,7 @@ public class FilmQueryApp {
 				}
 				showFilmDetailsMenu(films, input);
 				valid = true;
-			} catch (Exception e) {
+			} catch(NoSuchElementException e ) {
 				System.out.println(
 						"You're input was not recognized. Please enter lookup for a film title or description.");
 			}
@@ -118,11 +124,11 @@ public class FilmQueryApp {
 				film.showActors();
 				showFilmDetailsMenu(film, input);
 				valid = true;
-			} catch (NumberFormatException e) {
-				System.out.println("Invalid input for search, enter a number Id.");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch(NoSuchElementException e ) {
+				System.out.println("Input not recognized. Please enter a valid input");
+			}catch (NumberFormatException e ) {
+				System.out.println("Input not recognized. Please enter a valid input");
+			} 
 		}
 
 	}
@@ -144,7 +150,9 @@ public class FilmQueryApp {
 					}
 				}while(response != 2);
 				valid = true;
-			}catch(Exception e) {
+			}catch(NoSuchElementException e ) {
+				System.out.println("Invalid input, please enter 1 to display details or 2 to return to main menu.");
+			}catch (NumberFormatException e ) {
 				System.out.println("Invalid input, please enter 1 to display details or 2 to return to main menu.");
 			}
 		}
@@ -172,8 +180,10 @@ public class FilmQueryApp {
 					}
 				}while(response != 2);
 				valid = true;
-			}catch(Exception e) {
-				System.out.println("Invalid input. Enter 2 to return to menu or 1 to view film details:");
+			}catch(NoSuchElementException e ) {
+				System.out.println("Invalid input. Enter 1 to view film details and 2 to return to the main menu:");
+			}catch (NumberFormatException e ) {
+				System.out.println("Invalid input. Enter 1 to view film details and 2 to return to the main menu:");
 			}
 		}
 		
